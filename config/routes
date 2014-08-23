@@ -5,4 +5,5 @@
 /robots.txt RobotsR GET
 
 / HomeR GET POST
-/cats CatsR GET
+/cats        CatsR   GET PUT
+/cat/#Text  CatR    GET PUT DELETE
