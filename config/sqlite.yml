@@ -1,0 +1,20 @@
+Default: &defaults
+  database: soggoth.sqlite3
+  poolsize: 10
+
+Development:
+  <<: *defaults
+
+Testing:
+  database: soggoth_test.sqlite3
+  <<: *defaults
+
+Staging:
+  database: soggoth_staging.sqlite3
+  poolsize: 100
+  <<: *defaults
+
+Production:
+  database: soggoth_production.sqlite3
+  poolsize: 100
+  <<: *defaults
