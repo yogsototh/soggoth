@@ -29,8 +29,18 @@ putCatsR = do
   answer cat "This Cat Already Exists!" result
 
 
-getCatR :: Text -> Handler Html
-getCatR _ = error "getCatR not yet defined"
+askDB objuid = do
+  maybeCat <- runDB $ getBy $ objuid
+  case maybeCat of
+    Nothing -> notFound
+    Just (Entity _ obj) -> return obj
+
+getCatR :: Text -> Handler TypedContent
+getCatR catUniqueName = do
+  cat <- askDB (UniqueCat catUniqueName)
+  selectRep $ do
+      provideRep $ defaultLayout [whamlet|<h2>I am #{catName cat}|]
+      provideRep $ return $ toJSON cat
 
 putCatR :: Text -> Handler Html
 putCatR _ = error "getCatR not yet defined"
