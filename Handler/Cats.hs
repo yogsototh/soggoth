@@ -9,7 +9,14 @@ getCatsR = do
     $(widgetFile "cats")
 
 putCatsR :: Handler Html
-putCatsR = error "putCatsR not yet defined"
+putCatsR = do
+  -- Get the POST Parameters and Put them in a Cat Data structure
+  cat <- runInputPost $ Cat
+                <$> ireq textField "name"
+                <*> iopt intField  "age"
+  -- Insert the new cat in the DB
+  runDB $ insert cat
+  defaultLayout [whamlet|New Cat Created|]
 
 getCatR :: Text -> Handler Html
 getCatR _ = error "getCatR not yet defined"
