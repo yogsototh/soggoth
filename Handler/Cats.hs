@@ -2,6 +2,16 @@ module Handler.Cats where
 
 import Import
 
+answer :: ToJSON a => a -> Text -> Either l r -> Handler TypedContent
+answer obj msg result = do
+ case result of
+    Right _ -> selectRep $ do
+        provideRep $ defaultLayout [whamlet|Done|]
+        provideRep $ return $ toJSON obj
+    Left _ -> selectRep $ do
+        provideRep $ defaultLayout [whamlet|#{msg}|]
+        provideRep $ return $ object ["error" .= (msg :: Text)]
+
 getCatsR :: Handler Html
 getCatsR = do
   defaultLayout $ do
@@ -15,10 +25,9 @@ putCatsR = do
                 <$> ireq textField "name"
                 <*> iopt intField  "age"
   -- Insert the new cat in the DB
-  runDB $ insert cat
-  selectRep $ do
-    provideRep $ defaultLayout [whamlet|New Cat Created|]
-    provideRep $ return $ toJSON cat
+  result <- runDB $ insertBy cat
+  answer cat "This Cat Already Exists!" result
+
 
 getCatR :: Text -> Handler Html
 getCatR _ = error "getCatR not yet defined"
