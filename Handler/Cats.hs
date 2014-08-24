@@ -1,6 +1,7 @@
 module Handler.Cats where
 
 import Import
+import Control.Monad (when)
 
 answer :: ToJSON a => a -> Text -> Either l r -> Handler TypedContent
 answer obj msg result = do
@@ -45,11 +46,40 @@ getCatR :: Text -> Handler TypedContent
 getCatR catUniqueName = do
   cat <- askDB (UniqueCat catUniqueName)
   selectRep $ do
-      provideRep $ defaultLayout [whamlet|<h2>I am #{catName cat}|]
+      provideRep $ defaultLayout $(widgetFile "cat")
       provideRep $ return $ toJSON cat
 
-putCatR :: Text -> Handler Html
-putCatR _ = error "getCatR not yet defined"
+putCatR :: Text -> Handler TypedContent
+putCatR catUniqueName = do
+  -- get the parameters
+  cat <- runInputPost $ Cat
+                <$> ireq textField "name"
+                <*> iopt intField  "age"
+  -- ask the DB if such a cat already exists
+  mCatEntity <- runDB $ getBy (UniqueCat catUniqueName)
+  case mCatEntity of
+    -- if not then get out of here
+    Nothing -> notFound
+    -- if such a cat already exists
+    Just (Entity catId _) -> do
+        -- check the parameter name match the url one
+        when (catName cat /= catUniqueName) notFound
+        -- update its ages
+        _ <- runDB $ update catId [CatAge =. catAge cat]
+        -- Answer nicely the new cat state
+        selectRep $ do
+            provideRep $ defaultLayout $(widgetFile "cat")
+            provideRep $ return $ toJSON cat
 
-deleteCatR :: Text -> Handler Html
-deleteCatR _ = error "getCatR not yet defined"
+deleteCatR :: Text -> Handler TypedContent
+deleteCatR catUniqueName = do
+    _ <- runDB $ do
+        mCatEntity <- getBy (UniqueCat catUniqueName)
+        case mCatEntity of
+            Nothing -> notFound
+            Just (Entity catId _) -> delete catId
+    selectRep $ do
+        provideRep $ defaultLayout [whamlet|#{catUniqueName} has been deleted.|]
+        provideRep $ return $
+            object ["msg" .= (catUniqueName <> " has been deleted")]
+

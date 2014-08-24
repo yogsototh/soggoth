@@ -1,0 +1,6 @@
+<h2>#{catName cat}
+
+$maybe age <- catAge cat
+  She is #{age} years old.
+$nothing
+  I don't know how old she is.
