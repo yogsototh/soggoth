@@ -29,6 +29,12 @@ putCatsR = do
   answer cat "This Cat Already Exists!" result
 
 
+askDB :: (YesodPersist site,
+          PersistUnique (YesodPersistBackend site (HandlerT site IO)),
+          PersistEntity b,
+          PersistMonadBackend (YesodPersistBackend site (HandlerT site IO))
+          ~ PersistEntityBackend b) =>
+         Unique b -> HandlerT site IO b
 askDB objuid = do
   maybeCat <- runDB $ getBy $ objuid
   case maybeCat of
