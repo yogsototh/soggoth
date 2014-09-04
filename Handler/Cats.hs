@@ -13,12 +13,16 @@ answer obj msg result = do
         provideRep $ defaultLayout [whamlet|#{msg}|]
         provideRep $ return $ object ["error" .= (msg :: Text)]
 
-getCatsR :: Handler Html
+getCatsR :: Handler TypedContent
 getCatsR = do
   cats <- runDB $ selectList [][LimitTo 100]
-  defaultLayout $ do
-    setTitle "Some Cats"
-    $(widgetFile "cats")
+  selectRep $ do
+    provideRep $ defaultLayout $ do
+      setTitle "Some Cats"
+      $(widgetFile "cats")
+    provideRep $ do
+      let catList = map (\ (Entity _ cat) -> cat) cats
+      return $ object $ ["cats" .=  catList]
 
 putCatsR :: Handler TypedContent
 putCatsR = do
