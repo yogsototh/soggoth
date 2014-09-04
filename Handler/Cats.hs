@@ -15,6 +15,7 @@ answer obj msg result = do
 
 getCatsR :: Handler Html
 getCatsR = do
+  cats <- runDB $ selectList [][LimitTo 100]
   defaultLayout $ do
     setTitle "Some Cats"
     $(widgetFile "cats")
