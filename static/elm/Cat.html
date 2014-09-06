@@ -1,0 +1,170 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="UTF-8"><title>Cat</title><script type="text/javascript" src="/static/js/elm-runtime.js"></script><script type="text/javascript">Elm.Cat = Elm.Cat || {};
+Elm.Cat.make = function (_elm) {
+   "use strict";
+   _elm.Cat = _elm.Cat || {};
+   if (_elm.Cat.values)
+   return _elm.Cat.values;
+   var _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _A = _N.Array.make(_elm),
+   _E = _N.Error.make(_elm),
+   $moduleName = "Cat";
+   var Basics = Elm.Basics.make(_elm);
+   var Color = Elm.Color.make(_elm);
+   var Dict = Elm.Dict.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Collage = Elm.Graphics.Collage.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Element = Elm.Graphics.Element.make(_elm);
+   var Http = Elm.Http.make(_elm);
+   var Json = Elm.Json.make(_elm);
+   var List = Elm.List.make(_elm);
+   var Maybe = Elm.Maybe.make(_elm);
+   var Native = Native || {};
+   Native.Json = Elm.Native.Json.make(_elm);
+   var Native = Native || {};
+   Native.Ports = Elm.Native.Ports.make(_elm);
+   var Signal = Elm.Signal.make(_elm);
+   var String = Elm.String.make(_elm);
+   var Text = Elm.Text.make(_elm);
+   var Time = Elm.Time.make(_elm);
+   var _op = {};
+   var fromJust = function (_v0) {
+      return function () {
+         switch (_v0.ctor)
+         {case "Just": return _v0._0;}
+         _E.Case($moduleName,
+         "on line 33, column 27 to 28");
+      }();
+   };
+   var Cat = function (a) {
+      return {ctor: "Cat",_0: a};
+   };
+   var catFromDict = function (val) {
+      return function () {
+         switch (val.ctor)
+         {case "Object":
+            return function () {
+                 var _v5 = A2(Dict.get,
+                 "name",
+                 val._0);
+                 switch (_v5.ctor)
+                 {case "Just":
+                    switch (_v5._0.ctor)
+                      {case "String":
+                         return function () {
+                              var _v8 = A2(Dict.get,
+                              "age",
+                              val._0);
+                              switch (_v8.ctor)
+                              {case "Just":
+                                 switch (_v8._0.ctor)
+                                   {case "Null":
+                                      return Maybe.Just(Cat({_: {}
+                                                            ,age: Maybe.Nothing
+                                                            ,name: _v5._0._0}));
+                                      case "Number":
+                                      return Maybe.Just(Cat({_: {}
+                                                            ,age: Maybe.Just(Basics.round(_v8._0._0))
+                                                            ,name: _v5._0._0}));}
+                                   break;}
+                              return Maybe.Nothing;
+                           }();}
+                      break;}
+                 return Maybe.Nothing;
+              }();}
+         return Maybe.Nothing;
+      }();
+   };
+   var objlistToCatList = function (dictList) {
+      return function () {
+         var jlist = A2(List.map,
+         catFromDict,
+         dictList);
+         return A2(List.all,
+         Maybe.isJust,
+         jlist) ? Maybe.Just(A2(List.map,
+         fromJust,
+         jlist)) : Maybe.Nothing;
+      }();
+   };
+   var Cats = function (a) {
+      return {ctor: "Cats",_0: a};
+   };
+   var jsonToCats = function (jcat) {
+      return function () {
+         switch (jcat.ctor)
+         {case "Just":
+            switch (jcat._0.ctor)
+              {case "Object":
+                 return function () {
+                      var _v14 = A2(Dict.get,
+                      "cats",
+                      jcat._0._0);
+                      switch (_v14.ctor)
+                      {case "Just":
+                         switch (_v14._0.ctor)
+                           {case "Array":
+                              return function () {
+                                   var _v17 = objlistToCatList(_v14._0._0);
+                                   switch (_v17.ctor)
+                                   {case "Just":
+                                      return Maybe.Just(Cats({_: {}
+                                                             ,cats: _v17._0}));
+                                      case "Nothing":
+                                      return Maybe.Nothing;}
+                                   _E.Case($moduleName,
+                                   "between lines 47 and 50");
+                                }();}
+                           break;}
+                      return Maybe.Nothing;
+                   }();}
+              break;}
+         return Maybe.Nothing;
+      }();
+   };
+   var display = function (response) {
+      return function () {
+         switch (response.ctor)
+         {case "Failure":
+            return Text.asText(response);
+            case "Success":
+            return A2(Graphics.Element.flow,
+              Graphics.Element.down,
+              _L.fromArray([Text.asText(jsonToCats(Json.fromString(response._0)))]));
+            case "Waiting":
+            return Text.asText("WAITING");}
+         _E.Case($moduleName,
+         "between lines 55 and 58");
+      }();
+   };
+   var jsonGet = function (url) {
+      return A4(Http.request,
+      "GET",
+      url,
+      "",
+      _L.fromArray([{ctor: "_Tuple2"
+                    ,_0: "Accept"
+                    ,_1: "application/json"}]));
+   };
+   var getCats = jsonGet("/cats");
+   var responses = Http.send(Signal.constant(getCats));
+   var main = A2(Signal._op["<~"],
+   display,
+   responses);
+   _elm.Cat.values = {_op: _op
+                     ,jsonGet: jsonGet
+                     ,getCats: getCats
+                     ,responses: responses
+                     ,catFromDict: catFromDict
+                     ,fromJust: fromJust
+                     ,objlistToCatList: objlistToCatList
+                     ,jsonToCats: jsonToCats
+                     ,display: display
+                     ,main: main
+                     ,Cats: Cats
+                     ,Cat: Cat};
+   return _elm.Cat.values;
+};</script></head><body><script type="text/javascript">Elm.fullscreen(Elm.Cat)</script><noscript></noscript></body></html>
