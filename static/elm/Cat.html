@@ -18,7 +18,6 @@ Elm.Cat.make = function (_elm) {
    Graphics.Collage = Elm.Graphics.Collage.make(_elm);
    var Graphics = Graphics || {};
    Graphics.Element = Elm.Graphics.Element.make(_elm);
-   var Http = Elm.Http.make(_elm);
    var Json = Elm.Json.make(_elm);
    var List = Elm.List.make(_elm);
    var Maybe = Elm.Maybe.make(_elm);
@@ -36,7 +35,7 @@ Elm.Cat.make = function (_elm) {
          switch (_v0.ctor)
          {case "Just": return _v0._0;}
          _E.Case($moduleName,
-         "on line 33, column 27 to 28");
+         "on line 22, column 27 to 28");
       }();
    };
    var Cat = function (a) {
@@ -116,7 +115,7 @@ Elm.Cat.make = function (_elm) {
                                       case "Nothing":
                                       return Maybe.Nothing;}
                                    _E.Case($moduleName,
-                                   "between lines 47 and 50");
+                                   "between lines 36 and 39");
                                 }();}
                            break;}
                       return Maybe.Nothing;
@@ -125,45 +124,11 @@ Elm.Cat.make = function (_elm) {
          return Maybe.Nothing;
       }();
    };
-   var display = function (response) {
-      return function () {
-         switch (response.ctor)
-         {case "Failure":
-            return Text.asText(response);
-            case "Success":
-            return A2(Graphics.Element.flow,
-              Graphics.Element.down,
-              _L.fromArray([Text.asText(jsonToCats(Json.fromString(response._0)))]));
-            case "Waiting":
-            return Text.asText("WAITING");}
-         _E.Case($moduleName,
-         "between lines 55 and 58");
-      }();
-   };
-   var jsonGet = function (url) {
-      return A4(Http.request,
-      "GET",
-      url,
-      "",
-      _L.fromArray([{ctor: "_Tuple2"
-                    ,_0: "Accept"
-                    ,_1: "application/json"}]));
-   };
-   var getCats = jsonGet("/cats");
-   var responses = Http.send(Signal.constant(getCats));
-   var main = A2(Signal._op["<~"],
-   display,
-   responses);
    _elm.Cat.values = {_op: _op
-                     ,jsonGet: jsonGet
-                     ,getCats: getCats
-                     ,responses: responses
                      ,catFromDict: catFromDict
                      ,fromJust: fromJust
                      ,objlistToCatList: objlistToCatList
                      ,jsonToCats: jsonToCats
-                     ,display: display
-                     ,main: main
                      ,Cats: Cats
                      ,Cat: Cat};
    return _elm.Cat.values;
