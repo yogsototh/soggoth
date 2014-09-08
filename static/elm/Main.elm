@@ -8,37 +8,40 @@ import Json
 import Dict
 import Maybe
 import Window
+import Grid (reactiveGrid)
+import HSV (hsv)
 
+--------------------------------------------------------------------------------
+-- Constants
 rotationSpeed = 1/5000
-gonSize = 150
-elapsedTime = foldp (+) 0 (fps 30)
+gonSize       = 150
+elapsedTime   = foldp (+) 0 (fps 30)
 
+--------------------------------------------------------------------------------
 main : Signal Element
-main = display <~ Window.dimensions ~ elapsedTime ~ getJson "/cats"
+main = display <~ Window.dimensions
+                ~ elapsedTime
+                ~ getJson "/cats"
 
-display : (Int,Int) -> Float -> Http.Response String -> Element
+--------------------------------------------------------------------------------
+display : (Int,Int) -- ^ Window dimension
+          -> Float  -- ^ time since start
+          -> Http.Response String --> ^ the Response of HTTP query
+          -> Element
 display (w,h) t response = case response of
     Http.Success cats -> showCats (w,h) t <| jsonToCats (Json.fromString cats)
-    Http.Waiting -> asText "WAITING..."
-    Http.Failure _ _ -> asText response
+    Http.Waiting      -> container w h middle <| plainText "WAITING..."
+    Http.Failure _ _  -> asText response -- Something went wrong
 
+
+--------------------------------------------------------------------------------
 showCats : (Int,Int) -> Float -> Maybe Cats -> Element
-showCats (w,h) t cats = let containerSize = 200
-                            nbOnRow = div w 200
-                        in
-  case cats of
-    (Just (Cats r)) -> let drawOneLine oneLine = flow right <|
-                                map (container containerSize containerSize middle . showOneCat t) oneLine
-                       in container w h midTop <|
-                            flow down <| map drawOneLine (listToGrid nbOnRow (.cats r))
-    _ -> collage w h [rotate (t*rotationSpeed) (filled red (ngon 4 50))]
+showCats (w,h) t cats =
+    case cats of
+        (Just (Cats r)) -> reactiveGrid (200,200) (map (showOneCat t) (.cats r)) w
+        _ -> collage w h [rotate (t*rotationSpeed) (filled red (ngon 4 50))]
 
-
-listToGrid : Int -> [a] -> [[a]]
-listToGrid n l = case l of
-    [] -> []
-    l -> (take n l) :: listToGrid n (drop n l)
-
+--------------------------------------------------------------------------------
 showOneCat : Float -> Cat -> Element
 showOneCat t (Cat {age, name}) =
     let shape = case age of
@@ -55,8 +58,8 @@ showOneCat t (Cat {age, name}) =
                     Just 3 -> yellow
                     Just 4 -> green
                     Just 5 -> blue
-                    Just n -> let level = (div 255 n) in
-                                 rgba level level level 1.0
+                    Just n -> let hue = toFloat (n * 36) in
+                                 hsv hue 0.5 180.0
     in
         layers [ collage (round gonSize) (round gonSize) [rotate (t*rotationSpeed) <| move (0,0) (filled ccolor shape)]
                , container (round gonSize) (round gonSize) middle (centered (Text.color (rgba 0 0 0 0.6) (bold (toText name))))

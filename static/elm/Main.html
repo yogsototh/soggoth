@@ -20,6 +20,8 @@ Elm.Main.make = function (_elm) {
    Graphics.Collage = Elm.Graphics.Collage.make(_elm);
    var Graphics = Graphics || {};
    Graphics.Element = Elm.Graphics.Element.make(_elm);
+   var Grid = Elm.Grid.make(_elm);
+   var HSV = Elm.HSV.make(_elm);
    var Http = Elm.Http.make(_elm);
    var Json = Elm.Json.make(_elm);
    var List = Elm.List.make(_elm);
@@ -46,19 +48,6 @@ Elm.Main.make = function (_elm) {
    var getJson = function (url) {
       return Http.send(Signal.constant(jsonGetRequest(url)));
    };
-   var listToGrid = F2(function (n,
-   l) {
-      return function () {
-         switch (l.ctor)
-         {case "[]":
-            return _L.fromArray([]);}
-         return {ctor: "::"
-                ,_0: A2(List.take,n,l)
-                ,_1: A2(listToGrid,
-                n,
-                A2(List.drop,n,l))};
-      }();
-   });
    var elapsedTime = A3(Signal.foldp,
    F2(function (x,y) {
       return x + y;
@@ -68,15 +57,15 @@ Elm.Main.make = function (_elm) {
    var gonSize = 150;
    var rotationSpeed = 1 / 5000;
    var showOneCat = F2(function (t,
-   _v1) {
+   _v0) {
       return function () {
-         switch (_v1.ctor)
+         switch (_v0.ctor)
          {case "Cat":
             return function () {
                  var ccolor = function () {
-                    var _v4 = _v1._0.age;
-                    switch (_v4.ctor)
-                    {case "Just": switch (_v4._0)
+                    var _v3 = _v0._0.age;
+                    switch (_v3.ctor)
+                    {case "Just": switch (_v3._0)
                          {case 0: return A4(Color.rgba,
                               255,
                               220,
@@ -88,24 +77,21 @@ Elm.Main.make = function (_elm) {
                             case 4: return Color.green;
                             case 5: return Color.blue;}
                          return function () {
-                            var level = A2(Basics.div,
-                            255,
-                            _v4._0);
-                            return A4(Color.rgba,
-                            level,
-                            level,
-                            level,
-                            1.0);
+                            var hue = Basics.toFloat(_v3._0 * 36);
+                            return A3(HSV.hsv,
+                            hue,
+                            0.5,
+                            180.0);
                          }();
                        case "Nothing":
                        return Color.grey;}
                     _E.Case($moduleName,
-                    "between lines 50 and 60");
+                    "between lines 53 and 63");
                  }();
                  var shape = function () {
-                    var _v6 = _v1._0.age;
-                    switch (_v6.ctor)
-                    {case "Just": switch (_v6._0)
+                    var _v5 = _v0._0.age;
+                    switch (_v5.ctor)
+                    {case "Just": switch (_v5._0)
                          {case 0:
                             return A2(Graphics.Collage.oval,
                               gonSize - 20,
@@ -119,14 +105,14 @@ Elm.Main.make = function (_elm) {
                               gonSize / 2,
                               gonSize);}
                          return A2(Graphics.Collage.ngon,
-                         _v6._0,
+                         _v5._0,
                          gonSize / 2);
                        case "Nothing":
                        return A2(Graphics.Collage.oval,
                          gonSize - 10,
                          gonSize - 20);}
                     _E.Case($moduleName,
-                    "between lines 44 and 50");
+                    "between lines 47 and 53");
                  }();
                  return Graphics.Element.layers(_L.fromArray([A3(Graphics.Collage.collage,
                                                              Basics.round(gonSize),
@@ -148,72 +134,54 @@ Elm.Main.make = function (_elm) {
                                                              0,
                                                              0,
                                                              0.6),
-                                                             Text.bold(Text.toText(_v1._0.name)))))]));
+                                                             Text.bold(Text.toText(_v0._0.name)))))]));
               }();}
          _E.Case($moduleName,
-         "between lines 44 and 63");
+         "between lines 47 and 66");
       }();
    });
-   var showCats = F3(function (_v8,
+   var showCats = F3(function (_v7,
    t,
    cats) {
       return function () {
-         switch (_v8.ctor)
+         switch (_v7.ctor)
          {case "_Tuple2":
             return function () {
-                 var nbOnRow = A2(Basics.div,
-                 _v8._0,
-                 200);
-                 var containerSize = 200;
-                 return function () {
-                    switch (cats.ctor)
-                    {case "Just":
-                       switch (cats._0.ctor)
-                         {case "Cats":
-                            return function () {
-                                 var drawOneLine = function (oneLine) {
-                                    return Graphics.Element.flow(Graphics.Element.right)(A2(List.map,
-                                    function ($) {
-                                       return A3(Graphics.Element.container,
-                                       containerSize,
-                                       containerSize,
-                                       Graphics.Element.middle)(showOneCat(t)($));
-                                    },
-                                    oneLine));
-                                 };
-                                 return A3(Graphics.Element.container,
-                                 _v8._0,
-                                 _v8._1,
-                                 Graphics.Element.midTop)(Graphics.Element.flow(Graphics.Element.down)(A2(List.map,
-                                 drawOneLine,
-                                 A2(listToGrid,
-                                 nbOnRow,
-                                 function (_) {
-                                    return _.cats;
-                                 }(cats._0._0)))));
-                              }();}
-                         break;}
-                    return A3(Graphics.Collage.collage,
-                    _v8._0,
-                    _v8._1,
-                    _L.fromArray([A2(Graphics.Collage.rotate,
-                    t * rotationSpeed,
-                    A2(Graphics.Collage.filled,
-                    Color.red,
-                    A2(Graphics.Collage.ngon,
-                    4,
-                    50)))]));
-                 }();
+                 switch (cats.ctor)
+                 {case "Just":
+                    switch (cats._0.ctor)
+                      {case "Cats":
+                         return A3(Grid.reactiveGrid,
+                           {ctor: "_Tuple2"
+                           ,_0: 200
+                           ,_1: 200},
+                           A2(List.map,
+                           showOneCat(t),
+                           function (_) {
+                              return _.cats;
+                           }(cats._0._0)),
+                           _v7._0);}
+                      break;}
+                 return A3(Graphics.Collage.collage,
+                 _v7._0,
+                 _v7._1,
+                 _L.fromArray([A2(Graphics.Collage.rotate,
+                 t * rotationSpeed,
+                 A2(Graphics.Collage.filled,
+                 Color.red,
+                 A2(Graphics.Collage.ngon,
+                 4,
+                 50)))]));
               }();}
          _E.Case($moduleName,
-         "between lines 26 and 34");
+         "between lines 40 and 42");
       }();
    });
-   var display = F3(function (_v15,
+   var display = F3(function (_v14,
    t,
    response) {
       return function () {
-         switch (_v15.ctor)
+         switch (_v14.ctor)
          {case "_Tuple2":
             return function () {
                  switch (response.ctor)
@@ -222,16 +190,19 @@ Elm.Main.make = function (_elm) {
                     case "Success":
                     return A2(showCats,
                       {ctor: "_Tuple2"
-                      ,_0: _v15._0
-                      ,_1: _v15._1},
+                      ,_0: _v14._0
+                      ,_1: _v14._1},
                       t)(Cat.jsonToCats(Json.fromString(response._0)));
                     case "Waiting":
-                    return Text.asText("WAITING...");}
+                    return A3(Graphics.Element.container,
+                      _v14._0,
+                      _v14._1,
+                      Graphics.Element.middle)(Text.plainText("WAITING..."));}
                  _E.Case($moduleName,
-                 "between lines 20 and 23");
+                 "between lines 31 and 34");
               }();}
          _E.Case($moduleName,
-         "between lines 20 and 23");
+         "between lines 31 and 34");
       }();
    });
    var main = A2(Signal._op["~"],
@@ -248,7 +219,6 @@ Elm.Main.make = function (_elm) {
                       ,main: main
                       ,display: display
                       ,showCats: showCats
-                      ,listToGrid: listToGrid
                       ,showOneCat: showOneCat
                       ,jsonGetRequest: jsonGetRequest
                       ,getJson: getJson};
@@ -386,4 +356,156 @@ Elm.Cat.make = function (_elm) {
                      ,Cats: Cats
                      ,Cat: Cat};
    return _elm.Cat.values;
+};Elm.Grid = Elm.Grid || {};
+Elm.Grid.make = function (_elm) {
+   "use strict";
+   _elm.Grid = _elm.Grid || {};
+   if (_elm.Grid.values)
+   return _elm.Grid.values;
+   var _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _A = _N.Array.make(_elm),
+   _E = _N.Error.make(_elm),
+   $moduleName = "Grid";
+   var Basics = Elm.Basics.make(_elm);
+   var Color = Elm.Color.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Collage = Elm.Graphics.Collage.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Element = Elm.Graphics.Element.make(_elm);
+   var List = Elm.List.make(_elm);
+   var Maybe = Elm.Maybe.make(_elm);
+   var Native = Native || {};
+   Native.Json = Elm.Native.Json.make(_elm);
+   var Native = Native || {};
+   Native.Ports = Elm.Native.Ports.make(_elm);
+   var Signal = Elm.Signal.make(_elm);
+   var String = Elm.String.make(_elm);
+   var Text = Elm.Text.make(_elm);
+   var Time = Elm.Time.make(_elm);
+   var _op = {};
+   var groupBy = F2(function (n,
+   l) {
+      return function () {
+         switch (l.ctor)
+         {case "[]":
+            return _L.fromArray([]);}
+         return {ctor: "::"
+                ,_0: A2(List.take,n,l)
+                ,_1: A2(groupBy,
+                n,
+                A2(List.drop,n,l))};
+      }();
+   });
+   var reactiveGrid = F3(function (_v1,
+   elements,
+   w) {
+      return function () {
+         switch (_v1.ctor)
+         {case "_Tuple2":
+            return function () {
+                 var box = A3(Graphics.Element.container,
+                 _v1._0,
+                 _v1._1,
+                 Graphics.Element.middle);
+                 var drawOneLine = function (oneLine) {
+                    return Graphics.Element.flow(Graphics.Element.right)(A2(List.map,
+                    box,
+                    oneLine));
+                 };
+                 var nbOnRow = A2(Basics.div,
+                 w,
+                 _v1._0);
+                 var grid = A2(groupBy,
+                 nbOnRow,
+                 elements);
+                 var nbLines = List.length(grid);
+                 return A3(Graphics.Element.container,
+                 w,
+                 _v1._1 * nbLines,
+                 Graphics.Element.midTop)(Graphics.Element.flow(Graphics.Element.down)(A2(List.map,
+                 drawOneLine,
+                 grid)));
+              }();}
+         _E.Case($moduleName,
+         "between lines 10 and 18");
+      }();
+   });
+   _elm.Grid.values = {_op: _op
+                      ,reactiveGrid: reactiveGrid
+                      ,groupBy: groupBy};
+   return _elm.Grid.values;
+};Elm.HSV = Elm.HSV || {};
+Elm.HSV.make = function (_elm) {
+   "use strict";
+   _elm.HSV = _elm.HSV || {};
+   if (_elm.HSV.values)
+   return _elm.HSV.values;
+   var _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _A = _N.Array.make(_elm),
+   _E = _N.Error.make(_elm),
+   $moduleName = "HSV";
+   var Basics = Elm.Basics.make(_elm);
+   var Color = Elm.Color.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Collage = Elm.Graphics.Collage.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Element = Elm.Graphics.Element.make(_elm);
+   var List = Elm.List.make(_elm);
+   var Maybe = Elm.Maybe.make(_elm);
+   var Native = Native || {};
+   Native.Json = Elm.Native.Json.make(_elm);
+   var Native = Native || {};
+   Native.Ports = Elm.Native.Ports.make(_elm);
+   var Signal = Elm.Signal.make(_elm);
+   var String = Elm.String.make(_elm);
+   var Text = Elm.Text.make(_elm);
+   var Time = Elm.Time.make(_elm);
+   var _op = {};
+   var hsv = F3(function (h,s,v) {
+      return function () {
+         var vi = Basics.floor(v);
+         var p = Basics.floor(v * (1 - s));
+         var hint = Basics.floor(h / 60);
+         var hi = A2(Basics.mod,hint,6);
+         var f = h / 60 - Basics.toFloat(hint);
+         var q = Basics.floor(v * (1 - f * s));
+         var t = Basics.floor(v * (1 - (1 - f) * s));
+         return function () {
+            switch (hi)
+            {case 0: return A3(Color.rgb,
+                 vi,
+                 t,
+                 p);
+               case 1: return A3(Color.rgb,
+                 q,
+                 vi,
+                 p);
+               case 2: return A3(Color.rgb,
+                 p,
+                 vi,
+                 t);
+               case 3: return A3(Color.rgb,
+                 p,
+                 q,
+                 vi);
+               case 4: return A3(Color.rgb,
+                 t,
+                 p,
+                 vi);
+               case 5: return A3(Color.rgb,
+                 vi,
+                 p,
+                 q);}
+            _E.Case($moduleName,
+            "between lines 14 and 20");
+         }();
+      }();
+   });
+   _elm.HSV.values = {_op: _op
+                     ,hsv: hsv};
+   return _elm.HSV.values;
 };</script></head><body><script type="text/javascript">Elm.fullscreen(Elm.Main)</script><noscript></noscript></body></html>

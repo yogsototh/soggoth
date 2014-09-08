@@ -1,0 +1,7 @@
+#!/usr/bin/env zsh
+
+# Use fswatch: https://github.com/emcrisostomo/fswatch
+
+fswatch -0 -i '\.elm$' -e '.*' static/elm | while read -d '' fic; do
+    ./elm-compile.sh
+done
