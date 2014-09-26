@@ -1,3 +1,22 @@
 $maybe msg <- mmsg
-    <div #message>#{msg}
+    <div .alert>
+      <button type="button" .close data-dismiss="alert">&times;
+      <strong>
+        Warning
+      #{msg}
+<div .navbar>
+  <div .navbar-inner>
+    <a href=@{HomeR} .brand>
+        Soggoth Example
+    <ul .nav>
+        <li .active>
+            <a href=@{HomeR}>Home
+        <li>
+            <a href=@{CatsR}>Cats
+        <li>
+            $maybe _ <- muser
+                <a href=@{AuthR LogoutR} .logout>Logout
+            $nothing
+                <a href=@{AuthR LoginR} .login>Login
+
 ^{widget}
