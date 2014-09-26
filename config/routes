@@ -4,6 +4,6 @@
 /favicon.ico FaviconR GET
 /robots.txt RobotsR GET
 
-/ HomeR GET POST
+/           HomeR   GET
 /cats        CatsR   GET PUT
 /cat/#Text  CatR    GET PUT DELETE
