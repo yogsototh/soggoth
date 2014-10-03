@@ -18,7 +18,7 @@ dbdo dbAction objname msg = do
       Left _ -> selectRep $ do
         provideRep $ defaultLayout [whamlet|#{msg}|]
         provideRep $ return $
-          object ["error" .= ("This Cat Already Exists!" :: Text)]
+          object ["error" .= msg]
 
 postNewCatR :: Handler TypedContent
 postNewCatR = do
@@ -27,8 +27,21 @@ postNewCatR = do
             <*> iopt intField "age"
   dbdo (insertBy cat) "cats" ("New Cat Created" :: String)
 
-getCatR :: Text -> Handler Html
-getCatR _ = error "getCatR not yet defined"
+
+dbget dbAction objname msg = do
+  result <- runDB dbAction
+  case result of
+      Just (Entity _ obj) -> selectRep $ do
+        provideRep $ defaultLayout [whamlet|Done|]
+        provideRep $ return $ object [objname .= (toJSON obj)]
+      Nothing -> selectRep $ do
+        provideRep $ defaultLayout [whamlet|#{msg}|]
+        provideRep $ return $
+          object ["error" .= msg ]
+
+getCatR :: Text -> Handler TypedContent
+getCatR catUniqueName = do
+  dbget (getBy $ UniqueCat catUniqueName) "cats" ("Can't find the cat" :: String)
 
 putCatR :: Text -> Handler Html
 putCatR _ = error "putCatR not yet defined"
