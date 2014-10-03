@@ -9,7 +9,12 @@ getCatsR = do
     $(widgetFile "cats")
 
 postNewCatR :: Handler Html
-postNewCatR = error "postNewCatR not yet defined"
+postNewCatR = do
+  cat <- runInputPost $ Cat
+            <$> ireq textField "name"
+            <*> iopt intField "age"
+  _ <- runDB $ insert cat
+  defaultLayout [whamlet|New Cat Created|]
 
 getCatR :: Text -> Handler Html
 getCatR _ = error "getCatR not yet defined"
