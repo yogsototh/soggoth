@@ -4,4 +4,6 @@ import Import
 
 getCatsR :: Handler Html
 getCatsR = do
-  defaultLayout $(widgetFile "cats")
+  defaultLayout $ do
+    setTitle "Some Cats"
+    $(widgetFile "cats")
