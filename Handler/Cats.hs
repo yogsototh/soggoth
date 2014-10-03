@@ -8,13 +8,20 @@ getCatsR = do
     setTitle "Some Cats"
     $(widgetFile "cats")
 
-postNewCatR :: Handler Html
+postNewCatR :: Handler TypedContent
 postNewCatR = do
   cat <- runInputPost $ Cat
             <$> ireq textField "name"
             <*> iopt intField "age"
-  _ <- runDB $ insert cat
-  defaultLayout [whamlet|New Cat Created|]
+  result <- runDB $ insertBy cat
+  case result of
+    Right uid -> selectRep $ do
+      provideRep $ defaultLayout [whamlet|New Cat Created|]
+      provideRep $ return $ toJSON cat
+    Left (Entity uid _) -> selectRep $ do
+      provideRep $ defaultLayout [whamlet|This Cat Already Exist!s|]
+      provideRep $ return $
+        object ["error" .= ("This Cat Already Exists!" :: Text)]
 
 getCatR :: Text -> Handler Html
 getCatR _ = error "getCatR not yet defined"
