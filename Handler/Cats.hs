@@ -2,6 +2,14 @@
 module Handler.Cats where
 
 import Import
+import qualified Data.HashMap.Strict as HashMap
+
+(+=) :: Value -> Value -> Value
+(+=) (Object o1) (Object o2) = Object (HashMap.union o1 o2)
+(+=) (Object o1) _ = Object o1
+(+=) _ (Object o2) = Object o2
+(+=) _ _ = Object HashMap.empty
+
 
 getCatsR :: Handler Html
 getCatsR = do
@@ -9,23 +17,25 @@ getCatsR = do
     setTitle "Some Cats"
     $(widgetFile "cats")
 
-dbdo dbAction objname msg = do
-  result <- runDB dbAction
+create obj objname errmsg = do
+  result <- runDB $ insertBy obj
   case result of
       Right uid -> selectRep $ do
         provideRep $ defaultLayout [whamlet|Done|]
-        provideRep $ return $ object [objname .= (object ["id" .= uid])]
+        provideRep $ return
+          $ object [objname .= (
+              (object ["id" .= uid]) += (toJSON obj))]
       Left _ -> selectRep $ do
-        provideRep $ defaultLayout [whamlet|#{msg}|]
+        provideRep $ defaultLayout [whamlet|#{errmsg}|]
         provideRep $ return $
-          object ["error" .= msg]
+          object ["error" .= errmsg]
 
 postNewCatR :: Handler TypedContent
 postNewCatR = do
   cat <- runInputPost $ Cat
             <$> ireq textField "name"
             <*> iopt intField "age"
-  dbdo (insertBy cat) "cats" ("New Cat Created" :: String)
+  create cat "cats" ("Cat Already exists" :: String)
 
 
 dbget dbAction objname msg = do
